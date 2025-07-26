@@ -132,21 +132,24 @@ public class QuestPreviewCommand implements CommandExecutor, Listener {
             lore.add(ChatColor.GRAY + quest.getDescription());
             lore.add("");
 
-            // Progress bar
-            String progressBar = createProgressBar(quest.getCurrentProgress(), quest.getRequiredAmount());
+        // Progress bar
+        String progressBar;
+
+        // For SPEND_HOURS_ONLINE quests, display online time in minutes
+        if (quest.getObjective() == QuestObjective.SPEND_HOURS_ONLINE) {
+            int currentMinutes = (int) data.getOnlineTime();
+            int requiredMinutes = quest.getRequiredAmount() * 60;
+            progressBar = createProgressBar(currentMinutes, requiredMinutes);
+            double completion = (double) currentMinutes / requiredMinutes * 100;
             lore.add(ChatColor.YELLOW + "Progress: " + progressBar);
-            
-            // For SPEND_HOURS_ONLINE quests, display online time in minutes
-            if (quest.getObjective() == QuestObjective.SPEND_HOURS_ONLINE) {
-                long currentMinutes = data.getOnlineTime();
-                long requiredMinutes = quest.getRequiredAmount() * 60;
-                double completion = (double) currentMinutes / requiredMinutes * 100;
-                lore.add(ChatColor.YELLOW + "" + currentMinutes + "/" + requiredMinutes + " min" +
-                        " (" + String.format("%.1f%%", completion) + ")");
-            } else {
-                lore.add(ChatColor.YELLOW + "" + quest.getCurrentProgress() + "/" + quest.getRequiredAmount() +
-                        " (" + String.format("%.1f%%", quest.getProgressPercentage()) + ")");
-            }
+            lore.add(ChatColor.YELLOW + "" + currentMinutes + "/" + requiredMinutes + " min" +
+                    " (" + String.format("%.1f%%", completion) + ")");
+        } else {
+            progressBar = createProgressBar(quest.getCurrentProgress(), quest.getRequiredAmount());
+            lore.add(ChatColor.YELLOW + "Progress: " + progressBar);
+            lore.add(ChatColor.YELLOW + "" + quest.getCurrentProgress() + "/" + quest.getRequiredAmount() +
+                    " (" + String.format("%.1f%%", quest.getProgressPercentage()) + ")");
+        }
             lore.add("");
 
             if (quest.isCompleted()) {
@@ -220,20 +223,21 @@ public class QuestPreviewCommand implements CommandExecutor, Listener {
 
         player.sendMessage(typeColor + typeName + ": " + ChatColor.WHITE + quest.getDescription());
 
-        // Progress bar
-        String progressBar = createProgressBar(quest.getCurrentProgress(), quest.getRequiredAmount());
-        
+        String progressBar;
+
         // For SPEND_HOURS_ONLINE quests, display time in minutes
         if (quest.getObjective() == QuestObjective.SPEND_HOURS_ONLINE) {
-            long currentMinutes = data.getOnlineTime();
-            long requiredMinutes = quest.getRequiredAmount() * 60;
+            int currentMinutes = (int) data.getOnlineTime();
+            int requiredMinutes = quest.getRequiredAmount() * 60;
+            progressBar = createProgressBar(currentMinutes, requiredMinutes);
             double completion = (double) currentMinutes / requiredMinutes * 100;
             player.sendMessage(ChatColor.GRAY + "Progress: " + progressBar + " " +
                              ChatColor.WHITE + currentMinutes + "/" + requiredMinutes + " min" +
                              " (" + String.format("%.1f%%", completion) + ")");
         } else {
-            player.sendMessage(ChatColor.GRAY + "Progress: " + progressBar + " " + 
-                             ChatColor.WHITE + quest.getCurrentProgress() + "/" + quest.getRequiredAmount() + 
+            progressBar = createProgressBar(quest.getCurrentProgress(), quest.getRequiredAmount());
+            player.sendMessage(ChatColor.GRAY + "Progress: " + progressBar + " " +
+                             ChatColor.WHITE + quest.getCurrentProgress() + "/" + quest.getRequiredAmount() +
                              " (" + String.format("%.1f%%", quest.getProgressPercentage()) + ")");
         }
 
