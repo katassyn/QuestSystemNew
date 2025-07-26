@@ -150,6 +150,7 @@ public class QuestPreviewCommand implements CommandExecutor, Listener {
             lore.add(ChatColor.YELLOW + "" + quest.getCurrentProgress() + "/" + quest.getRequiredAmount() +
                     " (" + String.format("%.1f%%", quest.getProgressPercentage()) + ")");
         }
+
             lore.add("");
 
             if (quest.isCompleted()) {
@@ -227,9 +228,11 @@ public class QuestPreviewCommand implements CommandExecutor, Listener {
 
         // For SPEND_HOURS_ONLINE quests, display time in minutes
         if (quest.getObjective() == QuestObjective.SPEND_HOURS_ONLINE) {
+
             int currentMinutes = (int) data.getOnlineTime();
             int requiredMinutes = quest.getRequiredAmount() * 60;
             progressBar = createProgressBar(currentMinutes, requiredMinutes);
+
             double completion = (double) currentMinutes / requiredMinutes * 100;
             player.sendMessage(ChatColor.GRAY + "Progress: " + progressBar + " " +
                              ChatColor.WHITE + currentMinutes + "/" + requiredMinutes + " min" +
