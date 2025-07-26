@@ -1,0 +1,46 @@
+name: QuestSystem
+version: '1.0.0'
+main: org.maks.questsystem.QuestSystem
+api-version: '1.20'
+authors: [maks]
+description: 'Daily, weekly and monthly quest system'
+softdepend: [MyCraftingPlugin2, ChestTreasure]
+
+commands:
+  dailyquests:
+    description: Opens the daily quests menu
+    usage: /<command>
+    aliases: [quests, dq]
+    permission: questsystem.admin
+  dailyquestpreview:
+    description: Shows quest progress preview
+    usage: /<command>
+    aliases: [questpreview, qp, dqp]
+    permission: questsystem.use
+  questadmin:
+    description: Admin commands for quest system
+    usage: /<command> [args]
+    aliases: [qa]
+    permission: questsystem.admin
+  questrewards:
+    description: Opens the quest rewards configuration GUI
+    usage: /<command>
+    aliases: [qr]
+    permission: questsystem.admin
+
+permissions:
+  questsystem.use:
+    description: Allows players to use the quest system
+    default: false
+  questsystem.admin:
+    description: Allows access to admin commands
+    default: op
+  questsystem.reroll.free:
+    description: Allows one free reroll per day
+    default: false
+  questsystem.reroll.premium:
+    description: Allows one reroll per quest type
+    default: false
+  questsystem.reroll.deluxe:
+    description: Allows unlimited rerolls
+    default: false

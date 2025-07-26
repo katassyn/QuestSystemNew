@@ -1,0 +1,528 @@
+# QuestSystem Configuration
+
+# Debug mode - set to true to enable detailed logging
+debug: true
+
+# Database settings (MySQL)
+database:
+  host: "node19.icehost.pl"
+  port: 5891
+  name: "s61121_minecraft"
+  user: "u61121_T1tlCaXDAv"
+  password: "PlwA+z7DQ=cS0R7.ixxCxbhD"
+
+# Quest settings
+quests:
+  # Reset times (in server timezone)
+  daily_reset_hour: 0  # Midnight
+  weekly_reset_day: "SUNDAY"
+  monthly_reset_day: "LAST"  # Last day of month
+
+  # AFK detection (in minutes)
+  afk_timeout: 5
+
+  # GUI settings
+  gui:
+    title: "&6&lQuest System"
+    size: 27
+    # Glass pane colors (use STAINED_GLASS_PANE)
+    background_colors:
+      - WHITE
+
+# Mythic Mobs configuration
+mythic_mobs:
+  # Q (Dungeon) bosses
+  qinf:
+    q1: "grimmag_inf"
+    q2: "arachna_scourge_of_duria_inf"
+    q3: "undead_parallel_world_king_heredur_inf"
+    q4: "bearach_champion_of_wilds_inf"
+    q5: "khalys_leader_of_cultists_inf"
+    q6: "mortis_phase3_inf"
+    q7: "herald_of_anderworld_inf"
+    q8: "sigrismarr_priest_of_fjalnir_inf"
+    q9: "medusa_inf"
+    q10: "parallel_world_gorga_inf"
+
+  qhell:
+    q1: "grimmag_hell"
+    q2: "arachna_scourge_of_duria_hell"
+    q3: "undead_parallel_world_king_heredur_hell"
+    q4: "bearach_champion_of_wilds_hell"
+    q5: "khalys_leader_of_cultists_hell"
+    q6: "mortis_phase3_hell"
+    q7: "herald_of_anderworld_hell"
+    q8: "sigrismarr_priest_of_fjalnir_hell"
+    q9: "medusa_hell"
+    q10: "parallel_world_gorga_hell"
+
+  qblood:
+    q1: "grimmag_blood"
+    q2: "arachna_scourge_of_duria_blood"
+    q3: "undead_parallel_world_king_heredur_blood"
+    q4: "bearach_champion_of_wilds_blood"
+    q5: "khalys_leader_of_cultists_blood"
+    q6: "mortis_phase3_blood"
+    q7: "herald_of_anderworld_blood"
+    q8: "sigrismarr_priest_of_fjalnir_blood"
+    q9: "medusa_blood"
+    q10: "parallel_world_gorga_blood"
+
+# Expowiska (leveling areas) mobs
+expowiska:
+  1-5:  # Swerdfield & Catacombs
+    normal:
+      - "_Undead_Villager_"
+    elite:
+      - "_Undead_Knight_"
+
+  5-10:  # Catacombs & Silfmoor
+    normal:
+      - "_arisen_warrior"
+      - "_arisen_archer"
+    elite:
+      - "_nefertari_snooper"
+    mini_boss:
+      - "_nefertari_priest"
+
+  10-15:  # Silfmoor & Teganswall
+    normal:
+      - "black_furred_berserk"
+      - "black_furred_piercer"
+      - "black_furred_mauler"
+    elite:
+      - "bog_beast"
+    mini_boss:
+      - "talking_sekeleton"
+
+  15-20:  # Teganswall & Eternal Watch
+    normal:
+      - "soulless_dragon_warrior"
+      - "soulless_dragon_archer"
+    elite:
+      - "dragon_berserk_thug"
+      - "dragon_brood_militarist"
+    mini_boss:
+      - "commander_emberwing"
+
+  20-25:  # Eternal Watch & Mystra
+    normal:
+      - "norse_gnome"
+      - "frost_wolf_agitator"
+    elite:
+      - "frost_catcher"
+    mini_boss:
+      - "frost_paw"
+
+  25-30:  # Mystra & Temple Sector
+    normal:
+      - "horned_satyr_warrior"
+      - "horned_satyr_archer"
+    elite:
+      - "drunken_cyclops"
+    mini_boss:
+      - "horned_satyr_general"
+
+  30-35:  # Temple Sector & Stalgard
+    normal:
+      - "gorgon_soldier"
+      - "jellyfish"
+    elite:
+      - "gorgon_heretic"
+    mini_boss:
+      - "high_priest_baran"
+
+  35-40:  # Stalgard & Nahuatlan
+    normal:
+      - "longhelm_evil_guard"
+      - "walking_saw"
+    elite:
+      - "technik_engineer"
+      - "t_1000"
+    mini_boss:
+      - "high_priest_danzo"
+
+  40-45:  # Nahuatlan & Great Desert
+    normal:
+      - "temple_mummy"
+      - "furious_fiend"
+    elite:
+      - "crushing_monster"
+    mini_boss:
+      - "protector_life_death"
+
+  45-50:  # Great Desert & Brigavik
+    normal:
+      - "serpent_fighter"
+    elite:
+      - "serpent_spitter"
+    mini_boss:
+      - "scarab_knephre"
+
+  50-60:  # Brigavik
+    normal:
+      - "LunkyFireDemon"
+      - "ShadowGazer"
+      - "HungrynorseWolf"
+    elite:
+      - "ShadowNorseman"
+    mini_boss:
+      - "DemonWarden"
+
+  60-70:  # Tetaconetl
+    normal:
+      - "obstinate_toltec_warrior"
+      - "obstinate_toltec_hunter"
+    elite:
+      - "obstinate_toltec_shaman"
+    mini_boss:
+      - "quacking_orbax"
+
+  70-80:  # Telepolos
+    normal:
+      - "shade_crawler"
+      - "shadow_gazer"
+      - "traitorous_imperial_lancer"
+      - "traitorous_imperial_swordsman"
+    elite:
+      - "adamant_lava_hound"
+      - "elite_imperial_swordsman"
+    mini_boss:
+      - "soul_collector"
+
+  80-90:  # Tywyll Dail
+    normal:
+      - "leechbeast"
+      - "orbax"
+    elite:
+      - "twisted_roots"
+    mini_boss:
+      - "thunder_beech"
+
+  90-100:  # Ocean of Bones
+    normal:
+      - "mean_souls"
+      - "cold_skeleton_warrior"
+      - "cold_skeleton_archer"
+    elite:
+      - "cold_death_knight"
+    mini_boss:
+      - "death_knight_of_the_watch"
+
+# Elite and boss mobs (general, not area-specific)
+elites:
+  - "_Undead_Knight_"
+  - "_nefertari_snooper"
+  - "bog_beast"
+  - "dragon_berserk_thug"
+  - "dragon_brood_militarist"
+  - "frost_catcher"
+  - "drunken_cyclops"
+  - "gorgon_heretic"
+  - "technik_engineer"
+  - "t_1000"
+  - "crushing_monster"
+  - "serpent_spitter"
+  - "ShadowNorseman"
+  - "obstinate_toltec_shaman"
+  - "adamant_lava_hound"
+  - "elite_imperial_swordsman"
+  - "twisted_roots"
+  - "cold_death_knight"
+  - "flamecult_worshipper_inf"
+  - "corrupted_root_creature_inf"
+  - "cursed_troll_inf"
+  - "slain_assassin_inf"
+  - "sanguine_clan_raging_snooper_inf"
+  - "sanguine_clan_raging_hunter_inf"
+  - "eternal_root_creature_inf"
+  - "eternal_hunter_inf"
+  - "furious_andermagic_inf"
+  - "wailing_andermagic_ghost_inf"
+  - "andermagic_scoropitl_inf"
+  - "death_knight_inf"
+  - "death_archer_inf"
+  - "thundering_cyclops_inf"
+  - "dark_sentinel_inf"
+  - "fireclaw_mercenary_inf"
+  - "big_heap_of_ice_inf"
+  - "bloodthirsty_frostwolf_inf"
+  - "frost_magician_inf"
+  - "frost_bringer_inf"
+  - "cohort_swordsman_inf"
+  - "stone_golem_inf"
+  - "zorlobb_warrior_inf"
+  - "minotaur_inf"
+  - "scheming_gorgon_inf"
+  - "poisonous_jitterjelly_inf"
+  - "patrolling_jabbax_inf"
+  - "flamecult_worshipper_hell"
+  - "corrupted_root_creature_hell"
+  - "cursed_troll_hell"
+  - "slain_assassin_hell"
+  - "sanguine_clan_raging_snooper_hell"
+  - "sanguine_clan_raging_hunter_hell"
+  - "eternal_root_creature_hell"
+  - "eternal_hunter_hell"
+  - "furious_andermagic_hell"
+  - "wailing_andermagic_ghost_hell"
+  - "andermagic_scoropitl_hell"
+  - "death_knight_hell"
+  - "death_archer_hell"
+  - "thundering_cyclops_hell"
+  - "dark_sentinel_hell"
+  - "fireclaw_mercenary_hell"
+  - "big_heap_of_ice_hell"
+  - "bloodthirsty_frostwolf_hell"
+  - "frost_magician_hell"
+  - "frost_bringer_hell"
+  - "cohort_swordsman_hell"
+  - "stone_golem_hell"
+  - "zorlobb_warrior_hell"
+  - "minotaur_hell"
+  - "scheming_gorgon_hell"
+  - "poisonous_jitterjelly_hell"
+  - "patrolling_jabbax_hell"
+
+  - "flamecult_worshipper_blood"
+  - "corrupted_root_creature_blood"
+  - "cursed_troll_blood"
+  - "slain_assassin_blood"
+  - "sanguine_clan_raging_snooper_blood"
+  - "sanguine_clan_raging_hunter_blood"
+  - "eternal_root_creature_blood"
+  - "eternal_hunter_blood"
+  - "furious_andermagic_blood"
+  - "wailing_andermagic_ghost_blood"
+  - "andermagic_scoropitl_blood"
+  - "death_knight_blood"
+  - "death_archer_blood"
+  - "thundering_cyclops_blood"
+  - "dark_sentinel_blood"
+  - "fireclaw_mercenary_blood"
+  - "big_heap_of_ice_blood"
+  - "bloodthirsty_frostwolf_blood"
+  - "frost_magician_blood"
+  - "frost_bringer_blood"
+  - "cohort_swordsman_blood"
+  - "stone_golem_blood"
+  - "zorlobb_warrior_blood"
+  - "minotaur_blood"
+  - "scheming_gorgon_blood"
+  - "poisonous_jitterjelly_blood"
+  - "patrolling_jabbax_blood"
+
+mini_bosses:
+  - "_nefertari_priest"
+  - "talking_sekeleton"
+  - "commander_emberwing"
+  - "frost_paw"
+  - "horned_satyr_general"
+  - "high_priest_baran"
+  - "high_priest_danzo"
+  - "protector_life_death"
+  - "scarab_knephre"
+  - "DemonWarden"
+  - "quacking_orbax"
+  - "soul_collector"
+  - "thunder_beech"
+  - "death_knight_of_the_watch"
+  - "perral_world_dragonknight_inf"
+  - "raazghul_the_corruptor_inf"
+  - "xerib_the_hunchback_inf"
+  - "archus_the_mad_inf"
+  - "the_bloody_arrow_inf"
+  - "parallel_world_evil_miller_inf"
+  - "parallel_world_ancient_stag_inf"
+  - "ulgar_the_master_butcher_phase3_inf"
+  - "parallel_world_old_jabbax_shaman_inf"
+  - "wandering_experiment_inf"
+  - "mortis_death_knight_inf"
+  - "murot_high_priest_inf"
+  - "iron_creeper_gate_guard_inf"
+  - "commander_embersword_inf"
+  - "pale_enforcer_inf"
+  - "shocking_forocity_inf"
+  - "asterion_inf"
+  - "ebicarus_inf"
+  - "melas_the_swift_footed_inf"
+  - "akheilos_inf"
+  - "perral_world_dragonknight_hell"
+  - "raazghul_the_corruptor_hell"
+  - "xerib_the_hunchback_hell"
+  - "archus_the_mad_hell"
+  - "the_bloody_arrow_hell"
+  - "parallel_world_evil_miller_hell"
+  - "parallel_world_ancient_stag_hell"
+  - "ulgar_the_master_butcher_phase3_hell"
+  - "parallel_world_old_jabbax_shaman_hell"
+  - "wandering_experiment_hell"
+  - "mortis_death_knight_hell"
+  - "murot_high_priest_hell"
+  - "iron_creeper_gate_guard_hell"
+  - "commander_embersword_hell"
+  - "pale_enforcer_hell"
+  - "shocking_forocity_hell"
+  - "asterion_hell"
+  - "ebicarus_hell"
+  - "melas_the_swift_footed_hell"
+  - "akheilos_hell"
+  - "perral_world_dragonknight_blood"
+  - "raazghul_the_corruptor_blood"
+  - "xerib_the_hunchback_blood"
+  - "archus_the_mad_blood"
+  - "the_bloody_arrow_blood"
+  - "parallel_world_evil_miller_blood"
+  - "parallel_world_ancient_stag_blood"
+  - "ulgar_the_master_butcher_phase3_blood"
+  - "parallel_world_old_jabbax_shaman_blood"
+  - "wandering_experiment_blood"
+  - "mortis_death_knight_blood"
+  - "murot_high_priest_blood"
+  - "iron_creeper_gate_guard_blood"
+  - "commander_embersword_blood"
+  - "pale_enforcer_blood"
+  - "shocking_forocity_blood"
+  - "asterion_blood"
+  - "ebicarus_blood"
+  - "melas_the_swift_footed_blood"
+  - "akheilos_blood"
+bosses:
+  - "grimmag_inf"
+  - "arachna_scourge_of_duria_inf"
+  - "undead_parallel_world_king_heredur_inf"
+  - "bearach_champion_of_wilds_inf"
+  - "khalys_leader_of_cultists_inf"
+  - "mortis_phase3_inf"
+  - "herald_of_anderworld_inf"
+  - "sigrismarr_priest_of_fjalnir_inf"
+  - "medusa_inf"
+  - "parallel_world_gorga_inf"
+  - "grimmag_hell"
+  - "arachna_scourge_of_duria_hell"
+  - "undead_parallel_world_king_heredur_hell"
+  - "bearach_champion_of_wilds_hell"
+  - "khalys_leader_of_cultists_hell"
+  - "mortis_phase3_hell"
+  - "herald_of_anderworld_hell"
+  - "sigrismarr_priest_of_fjalnir_hell"
+  - "medusa_hell"
+  - "parallel_world_gorga_hell"
+  - "grimmag_blood"
+  - "arachna_scourge_of_duria_blood"
+  - "undead_parallel_world_king_heredur_blood"
+  - "bearach_champion_of_wilds_blood"
+  - "khalys_leader_of_cultists_blood"
+  - "mortis_phase3_blood"
+  - "herald_of_anderworld_blood"
+  - "sigrismarr_priest_of_fjalnir_blood"
+  - "medusa_blood"
+  - "parallel_world_gorga_blood"
+
+# Crafting materials
+quest_crafting_materials:
+  - "Broken Armor Piece"
+  - "Tousled Priest Robe"
+  - "Black Fur"
+  - "Dragon Scale"
+  - "Chain Fragment"
+  - "Satyr`s Horn"
+  - "Gorgon`s Poison"
+  - "Dragon`s Gold"
+  - "Protector`s Heart"
+  - "Dead Bush"
+  - "Demon Blood"
+  - "Sticky Mucus"
+  - "Soul of an Acient Spartan"
+  - "Shadow Rose"
+  - "Throphy of the Long Forgotten Bone Dragon"
+
+crafting_materials:
+  - "[ I ] Monster Soul Fragment"
+  - "[ II ] Monster Soul Fragment"
+  - "[ III ] Monster Soul Fragment"
+  - "[ I ] Monster Heart Fragment"
+  - "[ II ] Monster Heart Fragment"
+  - "[ III ] Monster Heart Fragment"
+  - "[ I ] Grimmage Burned Cape"
+  - "[ II ] Grimmage Burned Cape"
+  - "[ III ] Grimmage Burned Cape"
+  - "[ I ] Arachna Poisonous Skeleton"
+  - "[ II ] Arachna Poisonous Skeleton"
+  - "[ III ] Arachna Poisonous Skeleton"
+  - "[ I ] Heredur's Glacial Armor"
+  - "[ II ] Heredur's Glacial Armor"
+  - "[ III ] Heredur's Glacial Armor"
+  - "[ I ] Bearach Honey Hide"
+  - "[ II ] Bearach Honey Hide"
+  - "[ III ] Bearach Honey Hide"
+  - "[ I ] Khalys Magic Robe"
+  - "[ II ] Khalys Magic Robe"
+  - "[ III ] Khalys Magic Robe"
+  - "[ I ] Herald's Dragon Skin"
+  - "[ II ] Herald's Dragon Skin"
+  - "[ III ] Herald's Dragon Skin"
+  - "[ I ] Sigrismarr's Eternal Ice"
+  - "[ II ] Sigrismarr's Eternal Ice"
+  - "[ III ] Sigrismarr's Eternal Ice"
+  - "[ I ] Medusa Stone Scales"
+  - "[ II ] Medusa Stone Scales"
+  - "[ III ] Medusa Stone Scales"
+  - "[ I ] Gorga's Broken Tooth"
+  - "[ II ] Gorga's Broken Tooth"
+  - "[ III ] Gorga's Broken Tooth"
+  - "[ I ] Mortis Sacrificial Bones"
+  - "[ II ] Mortis Sacrificial Bones"
+  - "[ III ] Mortis Sacrificial Bones"
+  - "[ I ] Ore"
+  - "[ II ] Ore"
+  - "[ III ] Ore"
+  - "[ I ] Cursed Blood"
+  - "[ II ] Cursed Blood"
+  - "[ III ] Cursed Blood"
+  - "[ I ] Shattered Bone"
+  - "[ II ] Shattered Bone"
+  - "[ III ] Shattered Bone"
+  - "[ I ] Leaf"
+  - "[ II ] Leaf"
+  - "[ III ] Leaf"
+  - "[ I ] Algal"
+  - "[ II ] Algal"
+  - "[ III ] Algal"
+  - "[ I ] Shiny Pearl"
+  - "[ II ] Shiny Pearl"
+  - "[ III ] Shiny Pearl"
+  - "[ I ] Heart of the Ocean"
+  - "[ II ] Heart of the Ocean"
+  - "[ III ] Heart of the Ocean"
+# Lootbox configuration
+lootboxes:
+  - "Gambler Chest - Boss Souls"
+  - "Q Reward Chest"
+  - "Epic Lootbox"
+  - "Gambler Chest - Boss Ingredients"
+  - "Jewel Chest"
+  - "Ingredient Chest"
+  - "Alchemy Chest"
+
+# Rarity keywords to search in item lore
+rarity_keywords:
+  magic: "magic"
+  extraordinary: "extraordinary"
+  legendary: "legendary"
+  unique: "unique"
+  mythic: "mythic"
+
+# Messages
+messages:
+  prefix: "&6[Quests] &r"
+  quest_complete: "&aQuest completed! Return to the Quest Master to claim your reward!"
+  quest_progress: "&eQuest progress: &f{current}/{required}"
+  daily_reset: "&eDaily quests have been reset!"
+  weekly_reset: "&eWeekly quests have been reset!"
+  monthly_reset: "&eMonthly quests have been reset!"
+  no_permission: "&cYou don't have permission to do that!"
+  reroll_used: "&eYou have used your quest reroll for this type!"
+  reroll_limit: "&cYou have reached your reroll limit!"
+  reward_claimed: "&aReward claimed successfully!"
+  inventory_full: "&cYour inventory is full! Clear some space to claim your reward."
