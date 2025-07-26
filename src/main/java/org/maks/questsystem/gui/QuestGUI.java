@@ -43,15 +43,15 @@ public class QuestGUI implements Listener {
         PlayerQuestData data = plugin.getQuestManager().getPlayerData(player.getUniqueId());
 
         // Daily quest item
-        ItemStack dailyItem = createQuestItem(data.getDailyQuest(), QuestType.DAILY);
+        ItemStack dailyItem = createQuestItem(data, data.getDailyQuest(), QuestType.DAILY);
         inv.setItem(11, dailyItem);
 
         // Weekly quest item
-        ItemStack weeklyItem = createQuestItem(data.getWeeklyQuest(), QuestType.WEEKLY);
+        ItemStack weeklyItem = createQuestItem(data, data.getWeeklyQuest(), QuestType.WEEKLY);
         inv.setItem(13, weeklyItem);
 
         // Monthly quest item
-        ItemStack monthlyItem = createQuestItem(data.getMonthlyQuest(), QuestType.MONTHLY);
+        ItemStack monthlyItem = createQuestItem(data, data.getMonthlyQuest(), QuestType.MONTHLY);
         inv.setItem(15, monthlyItem);
 
         // Info item
@@ -72,7 +72,7 @@ public class QuestGUI implements Listener {
         player.openInventory(inv);
     }
 
-    private ItemStack createQuestItem(Quest quest, QuestType type) {
+    private ItemStack createQuestItem(PlayerQuestData data, Quest quest, QuestType type) {
         Material material;
         String name;
         ChatColor color;
@@ -113,12 +113,13 @@ public class QuestGUI implements Listener {
             lore.add(ChatColor.GRAY + quest.getDescription());
             lore.add("");
             
-            // For SPEND_HOURS_ONLINE quests, display time in minutes
+            // For SPEND_HOURS_ONLINE quests, display online time in minutes
             if (quest.getObjective() == QuestObjective.SPEND_HOURS_ONLINE) {
-                long currentMinutes = quest.getCurrentProgress() * 60;
+                long currentMinutes = data.getOnlineTime();
                 long requiredMinutes = quest.getRequiredAmount() * 60;
+                double completion = (double) currentMinutes / requiredMinutes * 100;
                 lore.add(ChatColor.YELLOW + "Progress: " + currentMinutes + "/" + requiredMinutes + " min");
-                lore.add(ChatColor.YELLOW + "Completion: " + String.format("%.1f%%", quest.getProgressPercentage()));
+                lore.add(ChatColor.YELLOW + "Completion: " + String.format("%.1f%%", completion));
             } else {
                 lore.add(ChatColor.YELLOW + "Progress: " + quest.getCurrentProgress() + "/" + quest.getRequiredAmount());
                 lore.add(ChatColor.YELLOW + "Completion: " + String.format("%.1f%%", quest.getProgressPercentage()));

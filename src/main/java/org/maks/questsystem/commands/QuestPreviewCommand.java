@@ -62,15 +62,15 @@ public class QuestPreviewCommand implements CommandExecutor, Listener {
         PlayerQuestData data = plugin.getQuestManager().getPlayerData(player.getUniqueId());
 
         // Daily quest item
-        ItemStack dailyItem = createQuestItem(data.getDailyQuest(), QuestType.DAILY);
+        ItemStack dailyItem = createQuestItem(data, data.getDailyQuest(), QuestType.DAILY);
         inv.setItem(11, dailyItem);
 
         // Weekly quest item
-        ItemStack weeklyItem = createQuestItem(data.getWeeklyQuest(), QuestType.WEEKLY);
+        ItemStack weeklyItem = createQuestItem(data, data.getWeeklyQuest(), QuestType.WEEKLY);
         inv.setItem(13, weeklyItem);
 
         // Monthly quest item
-        ItemStack monthlyItem = createQuestItem(data.getMonthlyQuest(), QuestType.MONTHLY);
+        ItemStack monthlyItem = createQuestItem(data, data.getMonthlyQuest(), QuestType.MONTHLY);
         inv.setItem(15, monthlyItem);
 
         // Info item
@@ -91,7 +91,7 @@ public class QuestPreviewCommand implements CommandExecutor, Listener {
         player.openInventory(inv);
     }
 
-    private ItemStack createQuestItem(Quest quest, QuestType type) {
+    private ItemStack createQuestItem(PlayerQuestData data, Quest quest, QuestType type) {
         Material material;
         String name;
         ChatColor color;
@@ -136,14 +136,15 @@ public class QuestPreviewCommand implements CommandExecutor, Listener {
             String progressBar = createProgressBar(quest.getCurrentProgress(), quest.getRequiredAmount());
             lore.add(ChatColor.YELLOW + "Progress: " + progressBar);
             
-            // For SPEND_HOURS_ONLINE quests, display time in minutes
+            // For SPEND_HOURS_ONLINE quests, display online time in minutes
             if (quest.getObjective() == QuestObjective.SPEND_HOURS_ONLINE) {
-                long currentMinutes = quest.getCurrentProgress() * 60;
+                long currentMinutes = data.getOnlineTime();
                 long requiredMinutes = quest.getRequiredAmount() * 60;
-                lore.add(ChatColor.YELLOW + "" + currentMinutes + "/" + requiredMinutes + " min" + 
-                        " (" + String.format("%.1f%%", quest.getProgressPercentage()) + ")");
+                double completion = (double) currentMinutes / requiredMinutes * 100;
+                lore.add(ChatColor.YELLOW + "" + currentMinutes + "/" + requiredMinutes + " min" +
+                        " (" + String.format("%.1f%%", completion) + ")");
             } else {
-                lore.add(ChatColor.YELLOW + "" + quest.getCurrentProgress() + "/" + quest.getRequiredAmount() + 
+                lore.add(ChatColor.YELLOW + "" + quest.getCurrentProgress() + "/" + quest.getRequiredAmount() +
                         " (" + String.format("%.1f%%", quest.getProgressPercentage()) + ")");
             }
             lore.add("");
@@ -207,7 +208,7 @@ public class QuestPreviewCommand implements CommandExecutor, Listener {
         }
     }
 
-    private void displayQuestProgress(Player player, Quest quest, QuestType type) {
+    private void displayQuestProgress(Player player, Quest quest, QuestType type, PlayerQuestData data) {
         ChatColor typeColor = getTypeColor(type);
         String typeName = getTypeName(type);
 
@@ -224,11 +225,12 @@ public class QuestPreviewCommand implements CommandExecutor, Listener {
         
         // For SPEND_HOURS_ONLINE quests, display time in minutes
         if (quest.getObjective() == QuestObjective.SPEND_HOURS_ONLINE) {
-            long currentMinutes = quest.getCurrentProgress() * 60;
+            long currentMinutes = data.getOnlineTime();
             long requiredMinutes = quest.getRequiredAmount() * 60;
-            player.sendMessage(ChatColor.GRAY + "Progress: " + progressBar + " " + 
-                             ChatColor.WHITE + currentMinutes + "/" + requiredMinutes + " min" + 
-                             " (" + String.format("%.1f%%", quest.getProgressPercentage()) + ")");
+            double completion = (double) currentMinutes / requiredMinutes * 100;
+            player.sendMessage(ChatColor.GRAY + "Progress: " + progressBar + " " +
+                             ChatColor.WHITE + currentMinutes + "/" + requiredMinutes + " min" +
+                             " (" + String.format("%.1f%%", completion) + ")");
         } else {
             player.sendMessage(ChatColor.GRAY + "Progress: " + progressBar + " " + 
                              ChatColor.WHITE + quest.getCurrentProgress() + "/" + quest.getRequiredAmount() + 
