@@ -56,3 +56,7 @@ The plugin uses a `config.yml` file for configuration. You can customize:
 ## Notes
 
 This project was created as a clean implementation of the QuestSystem plugin to resolve issues with the original implementation.
+
+### Recent Changes
+
+- Fixed player online time not resetting after completing time-based quests.
