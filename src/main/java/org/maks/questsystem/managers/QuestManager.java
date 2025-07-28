@@ -203,6 +203,11 @@ public class QuestManager {
             updateProgress(player, QuestObjective.COMPLETE_WEEKLY_QUESTS, 1, null);
         }
 
+        // Reset online time progress for SPEND_HOURS_ONLINE quests
+        if (quest.getObjective() == QuestObjective.SPEND_HOURS_ONLINE) {
+            data.resetOnlineTime();
+        }
+
         // Save to database
         plugin.getQuestDatabase().savePlayerData(data);
 
