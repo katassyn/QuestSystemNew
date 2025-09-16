@@ -30,8 +30,8 @@ public class DatabaseManager {
         config.setPassword(password);
         
         // Optimization settings
-        config.setMaximumPoolSize(10);
-        config.setMinimumIdle(5);
+        config.setMaximumPoolSize(25); // Increased for 30+ players - HIGH PRIORITY quest system
+        config.setMinimumIdle(12); // Quest system needs stable connections for progression
         config.setMaxLifetime(1800000); // 30 minutes
         config.setConnectionTimeout(30000); // 30 seconds
         config.setIdleTimeout(600000); // 10 minutes

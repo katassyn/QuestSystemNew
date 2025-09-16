@@ -30,6 +30,10 @@ public class ConfigManager {
         messages.put("no_permission", translateColors(config.getString("messages.no_permission")));
         messages.put("reroll_used", translateColors(config.getString("messages.reroll_used")));
         messages.put("reroll_limit", translateColors(config.getString("messages.reroll_limit")));
+        messages.put("no_rank_reroll", translateColors(config.getString("messages.no_rank_reroll", "&cYou need Premium or Deluxe rank to reroll quests!")));
+        messages.put("daily_quest_reset_notification", translateColors(config.getString("messages.daily_quest_reset_notification", "&6Your daily quest has been reset! Get a new quest to continue.")));
+        messages.put("weekly_quest_reset_notification", translateColors(config.getString("messages.weekly_quest_reset_notification", "&6Your weekly quest has been reset! Get a new quest to continue.")));
+        messages.put("monthly_quest_reset_notification", translateColors(config.getString("messages.monthly_quest_reset_notification", "&6Your monthly quest has been reset! Get a new quest to continue.")));
         messages.put("reward_claimed", translateColors(config.getString("messages.reward_claimed")));
         messages.put("inventory_full", translateColors(config.getString("messages.inventory_full")));
     }

@@ -224,11 +224,18 @@ public class QuestManager {
         if (now.toLocalTime().getHour() == resetTime.getHour() && now.toLocalTime().getMinute() < 5) {
             playerData.values().forEach(data -> {
                 // Check if we haven't already reset today
-                if (data.getLastDailyReset() == null || 
+                if (data.getLastDailyReset() == null ||
                     !data.getLastDailyReset().toLocalDate().equals(now.toLocalDate())) {
 
                     data.updateDailyReset();
                     plugin.getQuestDatabase().savePlayerData(data);
+
+                    // Force reset quest for online players regardless of progress
+                    Player player = Bukkit.getPlayer(data.getPlayerUUID());
+                    if (player != null && player.isOnline()) {
+                        // Notify player about daily reset
+                        player.sendMessage(plugin.getConfigManager().getMessage("daily_quest_reset_notification"));
+                    }
                 }
             });
 
@@ -249,11 +256,18 @@ public class QuestManager {
         if (now.getDayOfWeek() == resetDay && now.toLocalTime().getHour() == 0 && now.toLocalTime().getMinute() < 5) {
             playerData.values().forEach(data -> {
                 // Check if we haven't already reset this week
-                if (data.getLastWeeklyReset() == null || 
+                if (data.getLastWeeklyReset() == null ||
                     data.getLastWeeklyReset().plusDays(6).isBefore(now)) {
 
                     data.updateWeeklyReset();
                     plugin.getQuestDatabase().savePlayerData(data);
+
+                    // Force reset quest for online players regardless of progress
+                    Player player = Bukkit.getPlayer(data.getPlayerUUID());
+                    if (player != null && player.isOnline()) {
+                        // Notify player about weekly reset
+                        player.sendMessage(plugin.getConfigManager().getMessage("weekly_quest_reset_notification"));
+                    }
                 }
             });
 
@@ -269,16 +283,23 @@ public class QuestManager {
         LocalDateTime lastDayOfMonth = now.with(TemporalAdjusters.lastDayOfMonth());
 
         // Check if it's the last day of month within first 5 minutes of midnight
-        if (now.toLocalDate().equals(lastDayOfMonth.toLocalDate()) && 
+        if (now.toLocalDate().equals(lastDayOfMonth.toLocalDate()) &&
             now.toLocalTime().getHour() == 0 && now.toLocalTime().getMinute() < 5) {
 
             playerData.values().forEach(data -> {
                 // Check if we haven't already reset this month
-                if (data.getLastMonthlyReset() == null || 
+                if (data.getLastMonthlyReset() == null ||
                     data.getLastMonthlyReset().getMonth() != now.getMonth()) {
 
                     data.updateMonthlyReset();
                     plugin.getQuestDatabase().savePlayerData(data);
+
+                    // Force reset quest for online players regardless of progress
+                    Player player = Bukkit.getPlayer(data.getPlayerUUID());
+                    if (player != null && player.isOnline()) {
+                        // Notify player about monthly reset
+                        player.sendMessage(plugin.getConfigManager().getMessage("monthly_quest_reset_notification"));
+                    }
                 }
             });
 

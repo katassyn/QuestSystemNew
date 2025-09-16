@@ -59,9 +59,18 @@ public class QuestGUI implements Listener {
         ItemMeta infoMeta = infoItem.getItemMeta();
         infoMeta.setDisplayName(ChatColor.GOLD + "Quest Information");
         List<String> infoLore = new ArrayList<>();
-        infoLore.add(ChatColor.GRAY + "Daily quests reset at midnight");
-        infoLore.add(ChatColor.GRAY + "Weekly quests reset on Sunday");
-        infoLore.add(ChatColor.GRAY + "Monthly quests reset on the last day of the month");
+
+        // Get reset times from config
+        int dailyResetHour = plugin.getConfig().getInt("quests.daily_reset_hour", 0);
+        String weeklyResetDay = plugin.getConfig().getString("quests.weekly_reset_day", "SUNDAY");
+
+        infoLore.add(ChatColor.AQUA + "Reset Times:");
+        infoLore.add(ChatColor.GRAY + "• Daily: " + String.format("%02d:00", dailyResetHour) + " server time");
+        infoLore.add(ChatColor.GRAY + "• Weekly: " + weeklyResetDay.toLowerCase() + " at 00:00");
+        infoLore.add(ChatColor.GRAY + "• Monthly: Last day of month at 00:00");
+        infoLore.add("");
+        infoLore.add(ChatColor.RED + "⚠ Incomplete quests are removed at reset!");
+        infoLore.add(ChatColor.GREEN + "Complete quests before reset time to keep progress");
         infoLore.add("");
         infoLore.add(ChatColor.YELLOW + "Completed daily quests: " + data.getCompletedDailyQuests());
         infoLore.add(ChatColor.YELLOW + "Completed weekly quests: " + data.getCompletedWeeklyQuests());
@@ -224,6 +233,12 @@ public class QuestGUI implements Listener {
             // Reroll quest
             boolean isPremium = player.hasPermission("questsystem.reroll.premium");
             boolean isDeluxe = player.hasPermission("questsystem.reroll.deluxe");
+
+            // Check if player has no rank permissions at all
+            if (!isPremium && !isDeluxe) {
+                player.sendMessage(plugin.getConfigManager().getMessage("no_rank_reroll"));
+                return;
+            }
 
             if (data.canReroll(type, isPremium, isDeluxe)) {
                 Quest newQuest = plugin.getQuestManager().rerollQuest(player, type);

@@ -143,25 +143,17 @@ public class PlayerQuestData {
     public void updateDailyReset() {
         lastDailyReset = LocalDateTime.now();
         resetRerolls(QuestType.DAILY);
-        if (dailyQuest != null && !dailyQuest.isRewardClaimed()) {
-            // Remove unclaimed quest or completed quest with unclaimed reward
-            // Note: !isRewardClaimed() will be true for both:
-            // 1. Incomplete quests (which by definition have unclaimed rewards)
-            // 2. Completed quests where the player hasn't claimed the reward
-            dailyQuest = null;
-        }
+        // Always remove daily quest during reset, regardless of progress or claim status
+        // This ensures fresh quests are available for all players at reset time
+        dailyQuest = null;
     }
 
     public void updateWeeklyReset() {
         lastWeeklyReset = LocalDateTime.now();
         resetRerolls(QuestType.WEEKLY);
-        if (weeklyQuest != null && !weeklyQuest.isRewardClaimed()) {
-            // Remove unclaimed quest or completed quest with unclaimed reward
-            // Note: !isRewardClaimed() will be true for both:
-            // 1. Incomplete quests (which by definition have unclaimed rewards)
-            // 2. Completed quests where the player hasn't claimed the reward
-            weeklyQuest = null;
-        }
+        // Always remove weekly quest during reset, regardless of progress or claim status
+        // This ensures fresh quests are available for all players at reset time
+        weeklyQuest = null;
     }
 
     public void updateMonthlyReset() {
@@ -170,13 +162,9 @@ public class PlayerQuestData {
         resetOnlineTime();
         resetCompletedDailyQuests();
         resetCompletedWeeklyQuests();
-        if (monthlyQuest != null && !monthlyQuest.isRewardClaimed()) {
-            // Remove unclaimed quest or completed quest with unclaimed reward
-            // Note: !isRewardClaimed() will be true for both:
-            // 1. Incomplete quests (which by definition have unclaimed rewards)
-            // 2. Completed quests where the player hasn't claimed the reward
-            monthlyQuest = null;
-        }
+        // Always remove monthly quest during reset, regardless of progress or claim status
+        // This ensures fresh quests are available for all players at reset time
+        monthlyQuest = null;
     }
 
     // Getters
