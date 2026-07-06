@@ -234,12 +234,6 @@ public class QuestGUI implements Listener {
             boolean isPremium = player.hasPermission("questsystem.reroll.premium");
             boolean isDeluxe = player.hasPermission("questsystem.reroll.deluxe");
 
-            // Check if player has no rank permissions at all
-            if (!isPremium && !isDeluxe) {
-                player.sendMessage(plugin.getConfigManager().getMessage("no_rank_reroll"));
-                return;
-            }
-
             if (data.canReroll(type, isPremium, isDeluxe)) {
                 Quest newQuest = plugin.getQuestManager().rerollQuest(player, type);
                 if (newQuest != null) {

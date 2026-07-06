@@ -12,7 +12,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.logging.Level;
+import org.maks.questsystem.objects.PlayerQuestData;
+import org.maks.questsystem.objects.Quest.QuestType;
 
 public class QuestSystem extends JavaPlugin {
 
@@ -59,6 +65,9 @@ public class QuestSystem extends JavaPlugin {
 
             // Schedule quest resets after questManager is initialized
             scheduleQuestResets();
+
+            // Quest expiration is handled by QuestDatabase.loadActiveQuest()
+            // No need to check expired quests on startup
 
             getLogger().info("Delayed initialization complete!");
         }, 40L); // 2-second delay (40 ticks)
@@ -149,6 +158,15 @@ public class QuestSystem extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerLevelListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerTimeListener(this), this);
         getServer().getPluginManager().registerEvents(new QuestCompleteListener(this), this);
+
+        // New plugin integrations
+        getServer().getPluginManager().registerEvents(new BloodChestListener(this), this);
+        getServer().getPluginManager().registerEvents(new BeesListener(this), this);
+        getServer().getPluginManager().registerEvents(new DungeonsListener(this), this);
+        getServer().getPluginManager().registerEvents(new FishingListener(this), this);
+        getServer().getPluginManager().registerEvents(new FarmingListener(this), this);
+        getServer().getPluginManager().registerEvents(new MineSystemListener(this), this);
+
         // RewardsGUI registers itself as a listener in its constructor
     }
 
@@ -207,35 +225,18 @@ public class QuestSystem extends JavaPlugin {
             return;
         }
 
-        // Daily reset at midnight
+        // Check for resets every minute
         Bukkit.getScheduler().runTaskTimer(this, () -> {
             if (questManager != null) {
-                questManager.resetDailyQuests();
+                questManager.checkAndPerformResets();
             } else {
-                getLogger().warning("questManager is null during daily reset!");
+                getLogger().warning("questManager is null during reset check!");
             }
-        }, 20L, 72000L); // Check every hour
-
-        // Weekly reset on Sunday
-        Bukkit.getScheduler().runTaskTimer(this, () -> {
-            if (questManager != null) {
-                questManager.resetWeeklyQuests();
-            } else {
-                getLogger().warning("questManager is null during weekly reset!");
-            }
-        }, 20L, 1728000L); // Check every day
-
-        // Monthly reset on last day
-        Bukkit.getScheduler().runTaskTimer(this, () -> {
-            if (questManager != null) {
-                questManager.resetMonthlyQuests();
-            } else {
-                getLogger().warning("questManager is null during monthly reset!");
-            }
-        }, 20L, 1728000L); // Check every day
+        }, 20L, 1200L); // 20 ticks = 1 second delay, 1200 ticks = 1 minute
 
         getLogger().info("Quest reset tasks scheduled successfully!");
     }
+
 
     // Getters
     public static QuestSystem getInstance() { return instance; }

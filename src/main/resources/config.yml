@@ -18,6 +18,13 @@ quests:
   weekly_reset_day: "SUNDAY"
   monthly_reset_day: "LAST"  # Last day of month
 
+  # Quest reroll settings
+  # Rerolls are reset when the quest period resets (daily/weekly/monthly)
+  rerolls:
+    regular: 1        # Regular players get 1 free reroll per quest type
+    premium: 2        # Premium players get 2 rerolls per quest type (requires questsystem.reroll.premium)
+    deluxe: -1        # Deluxe players get unlimited rerolls (requires questsystem.reroll.deluxe) (-1 = unlimited)
+
   # AFK detection (in minutes)
   afk_timeout: 5
 
@@ -154,29 +161,53 @@ expowiska:
   45-50:  # Great Desert & Brigavik
     normal:
       - "serpent_fighter"
+      - "shadow_wisp"
+      - "umbral_shade"
+      - "void_stalker"
+      - "dark_wraith"
     elite:
       - "serpent_spitter"
+      - "shadow_assassin"
+      - "umbral_wraith"
+      - "void_champion"
     mini_boss:
       - "scarab_knephre"
+      - "umbral_guardian"
 
   50-60:  # Brigavik
     normal:
       - "LunkyFireDemon"
       - "ShadowGazer"
       - "HungrynorseWolf"
+      - "aquatic_guardian"
+      - "sea_wraith"
+      - "coral_defender"
+      - "abyssal_hunter"
     elite:
       - "ShadowNorseman"
+      - "depths_warden"
+      - "poseidons_champion"
+      - "tidal_leviathan"
     mini_boss:
       - "DemonWarden"
+      - "kraken_spawn"
 
   60-70:  # Tetaconetl
     normal:
       - "obstinate_toltec_warrior"
       - "obstinate_toltec_hunter"
+      - "celestial_sentinel"
+      - "divine_herald"
+      - "storm_bringer"
+      - "olympian_guard"
     elite:
       - "obstinate_toltec_shaman"
+      - "divine_arbiter"
+      - "olympian_warlord"
+      - "zeus_champion"
     mini_boss:
       - "quacking_orbax"
+      - "divine_colossus"
 
   70-80:  # Telepolos
     normal:
@@ -184,21 +215,33 @@ expowiska:
       - "shadow_gazer"
       - "traitorous_imperial_lancer"
       - "traitorous_imperial_swordsman"
+      - "bronze_automaton"
+      - "labyrinth_guardian"
+      - "ancient_construct"
+      - "daedalus_creation"
     elite:
       - "adamant_lava_hound"
       - "elite_imperial_swordsman"
+      - "clockwork_titan"
+      - "labyrinth_overseer"
+      - "master_artificer"
     mini_boss:
       - "soul_collector"
+      - "minotaur_mechanicus"
 
   80-90:  # Tywyll Dail
     normal:
       - "leechbeast"
       - "orbax"
+      - "wandering_soul"
+      - "ethereal_specter"
+      - "immortal_wraith"
+      - "soul_reaper"
     elite:
       - "twisted_roots"
+      - "harbinger_of_death"
     mini_boss:
       - "thunder_beech"
-
   90-100:  # Ocean of Bones
     normal:
       - "mean_souls"
@@ -311,6 +354,21 @@ elites:
   - "scheming_gorgon_blood"
   - "poisonous_jitterjelly_blood"
   - "patrolling_jabbax_blood"
+  - "shadow_assassin"
+  - "umbral_wraith"
+  - "void_champion"
+  - "depths_warden"
+  - "poseidons_champion"
+  - "tidal_leviathan"
+  - "divine_arbiter"
+  - "olympian_warlord"
+  - "zeus_champion"
+  - "clockwork_titan"
+  - "labyrinth_overseer"
+  - "master_artificer"
+  - "harbinger_of_death"
+  - "eternal_guardian"
+  - "immortal_lich"
 
 mini_bosses:
   - "_nefertari_priest"
@@ -387,6 +445,11 @@ mini_bosses:
   - "ebicarus_blood"
   - "melas_the_swift_footed_blood"
   - "akheilos_blood"
+  - "umbral_guardian"
+  - "kraken_spawn"
+  - "divine_colossus"
+  - "minotaur_mechanicus"
+  - "thanatos_avatar"
 bosses:
   - "grimmag_inf"
   - "arachna_scourge_of_duria_inf"
@@ -418,6 +481,11 @@ bosses:
   - "sigrismarr_priest_of_fjalnir_blood"
   - "medusa_blood"
   - "parallel_world_gorga_blood"
+  - "umbraxis_shadowlord"
+  - "poseidon_sea_lord"
+  - "zeus_king_of_gods"
+  - "daedalus_master_architect"
+  - "hades_lord_of_underworld"
 
 # Crafting materials
 quest_crafting_materials:
@@ -497,13 +565,37 @@ crafting_materials:
   - "[ III ] Heart of the Ocean"
 # Lootbox configuration
 lootboxes:
-  - "Gambler Chest - Boss Souls"
-  - "Q Reward Chest"
-  - "Epic Lootbox"
-  - "Gambler Chest - Boss Ingredients"
-  - "Jewel Chest"
-  - "Ingredient Chest"
   - "Alchemy Chest"
+  - "Deluxe Alchemy Chest"
+  - "Biologist's Random Chest"
+  - "Boss Souls Chest"
+  - "Chest of Infernal Passage"
+  - "Daily Quest Chest"
+  - "Deluxe Ingredients Chest"
+  - "Epic Lootbox"
+  - "Fisherman`s Chest"
+  - "Gambler Chest - Boss Ingredients"
+  - "Gambler Chest - Boss Ingredients I"
+  - "Gambler Chest - Boss Ingredients II"
+  - "Gambler Chest - Boss Ingredients III"
+  - "Gambler Chest - Boss Souls"
+  - "Gem Chest"
+  - "Ingredient Chest"
+  - "Jewel Chest"
+  - "Monthly Quest Chest"
+  - "Mythical Chest"
+  - "Ocean Treasure"
+  - "Premium Ingredients Chest"
+  - "Q Jewel Chest"
+  - "Q Reward Chest"
+  - "[ I ] Q Reward Chest"
+  - "[ II ] Q Reward Chest"
+  - "[ III ] Q Reward Chest"
+  - "[ I ] Boss Ingredients Chest"
+  - "[ II ] Boss Ingredients Chest"
+  - "[ III ] Boss Ingredients Chest"
+  - "Rune Chest"
+  - "Weekly Quest Chest"
 
 # Rarity keywords to search in item lore
 rarity_keywords:

@@ -33,6 +33,9 @@ public class QuestManager {
     }
 
     private void loadAllPlayerData() {
+        // Clear existing cache to ensure fresh data load after server restart
+        playerData.clear();
+
         plugin.getQuestDatabase().loadAllPlayerData().forEach(data -> {
             playerData.put(data.getPlayerUUID(), data);
         });
@@ -51,17 +54,35 @@ public class QuestManager {
         });
     }
 
-    // Quest assignment
     public Quest assignQuest(Player player, QuestType type) {
         PlayerQuestData data = getPlayerData(player.getUniqueId());
         int playerLevel = getPlayerLevel(player);
 
-        // Check if player already has active quest
-        if (data.hasActiveQuest(type)) {
-            return data.getQuest(type);
+        // Check if player already has a quest for this period
+        Quest existingQuest = data.getQuest(type);
+
+        // Debug logging
+        if (plugin.getConfig().getBoolean("debug", false)) {
+            plugin.getLogger().info("Quest assignment check for " + player.getName() + " (" + type + "):");
+            plugin.getLogger().info("  - Existing quest: " + (existingQuest != null ? existingQuest.getQuestId() : "null"));
+            if (existingQuest != null) {
+                plugin.getLogger().info("  - Quest completed: " + existingQuest.isCompleted());
+                plugin.getLogger().info("  - Reward claimed: " + existingQuest.isRewardClaimed());
+            }
         }
 
-        // Generate new quest
+        // If player has any quest (even completed), return it
+        if (existingQuest != null) {
+            if (existingQuest.isRewardClaimed()) {
+                // Quest is complete and reward claimed - can't get new quest until reset
+                player.sendMessage(plugin.getConfigManager().getMessage("prefix") +
+                    ChatColor.YELLOW + "You have already completed your " + type.name().toLowerCase() +
+                    " quest for this period. Wait for the reset to get a new quest!");
+            }
+            return existingQuest;
+        }
+
+        // Generate new quest only if player has no quest at all
         Quest quest = questFactory.generateQuest(type, playerLevel);
         data.setQuest(quest);
 
@@ -130,7 +151,32 @@ public class QuestManager {
 
         // Check specific target if needed
         if (quest.getSpecificTarget() != null && !quest.getSpecificTarget().isEmpty()) {
-            if (target == null || !target.equals(quest.getSpecificTarget())) {
+            if (target == null) {
+                return;
+            }
+            // Support for compound targets like "2|3" or "S|A" (matches if target equals any part)
+            String questTarget = quest.getSpecificTarget();
+            if (questTarget.contains("|")) {
+                // Compound target - check if any part matches
+                String[] parts = questTarget.split("\\|");
+                boolean matches = false;
+                for (String part : parts) {
+                    if (part.contains(":")) {
+                        // Quality format like "S:20" - match the prefix
+                        String prefix = part.split(":")[0];
+                        if (target.equals(prefix) || target.startsWith(prefix)) {
+                            matches = true;
+                            break;
+                        }
+                    } else if (target.equals(part)) {
+                        matches = true;
+                        break;
+                    }
+                }
+                if (!matches) {
+                    return;
+                }
+            } else if (!target.equals(questTarget)) {
                 return;
             }
         }
@@ -194,6 +240,9 @@ public class QuestManager {
         // Mark as claimed
         quest.claimReward();
 
+        // Mark quest completion time to prevent multiple quests in same period
+        data.markQuestCompleted(type);
+
         // Update completion counters for monthly quests
         if (type == QuestType.DAILY) {
             data.incrementCompletedDailyQuests();
@@ -216,98 +265,182 @@ public class QuestManager {
     }
 
     // Reset methods
-    public void resetDailyQuests() {
+    public void checkAndPerformResets() {
         LocalDateTime now = LocalDateTime.now();
-        LocalTime resetTime = LocalTime.of(plugin.getConfig().getInt("quests.daily_reset_hour", 0), 0);
 
-        // Check if it's within the reset hour (not just exact time)
-        if (now.toLocalTime().getHour() == resetTime.getHour() && now.toLocalTime().getMinute() < 5) {
+        // Check for daily reset
+        checkDailyReset(now);
+
+        // Check for weekly reset
+        checkWeeklyReset(now);
+
+        // Check for monthly reset
+        checkMonthlyReset(now);
+    }
+
+    private void checkDailyReset(LocalDateTime now) {
+        int resetHour = plugin.getConfig().getInt("quests.daily_reset_hour", 0);
+        LocalTime resetTime = LocalTime.of(resetHour, 0);
+
+        // Only check during the exact reset minute
+        if (now.toLocalTime().getHour() == resetTime.getHour() &&
+            now.toLocalTime().getMinute() == 0) {
+
             playerData.values().forEach(data -> {
-                // Check if we haven't already reset today
+                // Check if this player's quest needs resetting
                 if (data.getLastDailyReset() == null ||
-                    !data.getLastDailyReset().toLocalDate().equals(now.toLocalDate())) {
+                    data.getLastDailyReset().toLocalDate().isBefore(now.toLocalDate())) {
 
+                    // Expire the old quest
+                    plugin.getQuestDatabase().expireQuest(data.getPlayerUUID(), QuestType.DAILY);
+
+                    // Update reset time
                     data.updateDailyReset();
                     plugin.getQuestDatabase().savePlayerData(data);
 
-                    // Force reset quest for online players regardless of progress
+                    // Notify online players
                     Player player = Bukkit.getPlayer(data.getPlayerUUID());
                     if (player != null && player.isOnline()) {
-                        // Notify player about daily reset
                         player.sendMessage(plugin.getConfigManager().getMessage("daily_quest_reset_notification"));
                     }
                 }
             });
 
-            // Only broadcast once per reset
-            if (now.toLocalTime().getMinute() == 0) {
-                Bukkit.broadcastMessage(plugin.getConfigManager().getMessage("daily_reset"));
-            }
+            // Broadcast once
+            Bukkit.broadcastMessage(plugin.getConfigManager().getMessage("daily_reset"));
+            plugin.getLogger().info("Daily quests have been reset at " + now);
         }
     }
 
-    public void resetWeeklyQuests() {
-        LocalDateTime now = LocalDateTime.now();
+    private void checkWeeklyReset(LocalDateTime now) {
         DayOfWeek resetDay = DayOfWeek.valueOf(
             plugin.getConfig().getString("quests.weekly_reset_day", "SUNDAY")
         );
 
-        // Check if it's the right day and within first 5 minutes of reset hour
-        if (now.getDayOfWeek() == resetDay && now.toLocalTime().getHour() == 0 && now.toLocalTime().getMinute() < 5) {
-            playerData.values().forEach(data -> {
-                // Check if we haven't already reset this week
-                if (data.getLastWeeklyReset() == null ||
-                    data.getLastWeeklyReset().plusDays(6).isBefore(now)) {
+        // Only check on reset day at midnight
+        if (now.getDayOfWeek() == resetDay &&
+            now.toLocalTime().getHour() == 0 &&
+            now.toLocalTime().getMinute() == 0) {
 
+            playerData.values().forEach(data -> {
+                // Check if this player's quest needs resetting
+                LocalDateTime lastWeeklyReset = data.getLastWeeklyReset();
+
+                // Reset if we haven't reset this week yet
+                if (lastWeeklyReset == null ||
+                    lastWeeklyReset.plusDays(6).isBefore(now)) {
+
+                    // Expire the old quest
+                    plugin.getQuestDatabase().expireQuest(data.getPlayerUUID(), QuestType.WEEKLY);
+
+                    // Update reset time
                     data.updateWeeklyReset();
                     plugin.getQuestDatabase().savePlayerData(data);
 
-                    // Force reset quest for online players regardless of progress
+                    // Notify online players
                     Player player = Bukkit.getPlayer(data.getPlayerUUID());
                     if (player != null && player.isOnline()) {
-                        // Notify player about weekly reset
                         player.sendMessage(plugin.getConfigManager().getMessage("weekly_quest_reset_notification"));
                     }
                 }
             });
 
-            // Only broadcast once per reset
-            if (now.toLocalTime().getMinute() == 0) {
-                Bukkit.broadcastMessage(plugin.getConfigManager().getMessage("weekly_reset"));
-            }
+            // Broadcast once
+            Bukkit.broadcastMessage(plugin.getConfigManager().getMessage("weekly_reset"));
+            plugin.getLogger().info("Weekly quests have been reset at " + now);
         }
     }
 
-    public void resetMonthlyQuests() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime lastDayOfMonth = now.with(TemporalAdjusters.lastDayOfMonth());
-
-        // Check if it's the last day of month within first 5 minutes of midnight
-        if (now.toLocalDate().equals(lastDayOfMonth.toLocalDate()) &&
-            now.toLocalTime().getHour() == 0 && now.toLocalTime().getMinute() < 5) {
+    private void checkMonthlyReset(LocalDateTime now) {
+        // Check if it's the first day of month at midnight (00:00)
+        // This happens when we transition from last day of previous month to first day of new month
+        if (now.getDayOfMonth() == 1 &&
+            now.toLocalTime().getHour() == 0 &&
+            now.toLocalTime().getMinute() == 0) {
 
             playerData.values().forEach(data -> {
-                // Check if we haven't already reset this month
-                if (data.getLastMonthlyReset() == null ||
-                    data.getLastMonthlyReset().getMonth() != now.getMonth()) {
+                // Check if this player's quest needs resetting
+                LocalDateTime lastMonthlyReset = data.getLastMonthlyReset();
 
+                // Reset if last reset was in a previous month (or never)
+                if (lastMonthlyReset == null ||
+                    lastMonthlyReset.getMonth() != now.getMonth() ||
+                    lastMonthlyReset.getYear() != now.getYear()) {
+
+                    // Expire the old quest
+                    plugin.getQuestDatabase().expireQuest(data.getPlayerUUID(), QuestType.MONTHLY);
+
+                    // Update reset time
                     data.updateMonthlyReset();
                     plugin.getQuestDatabase().savePlayerData(data);
 
-                    // Force reset quest for online players regardless of progress
+                    // Notify online players
                     Player player = Bukkit.getPlayer(data.getPlayerUUID());
                     if (player != null && player.isOnline()) {
-                        // Notify player about monthly reset
                         player.sendMessage(plugin.getConfigManager().getMessage("monthly_quest_reset_notification"));
                     }
                 }
             });
 
-            // Only broadcast once per reset
-            if (now.toLocalTime().getMinute() == 0) {
-                Bukkit.broadcastMessage(plugin.getConfigManager().getMessage("monthly_reset"));
-            }
+            // Broadcast once
+            Bukkit.broadcastMessage(plugin.getConfigManager().getMessage("monthly_reset"));
+            plugin.getLogger().info("Monthly quests have been reset at " + now);
         }
+    }
+
+    // Manual reset methods for admin commands
+    public void resetDailyQuests() {
+        plugin.getQuestDatabase().resetAllQuestsOfType(QuestType.DAILY);
+        playerData.values().forEach(data -> {
+            data.updateDailyReset();
+            plugin.getQuestDatabase().savePlayerData(data);
+        });
+        Bukkit.broadcastMessage(plugin.getConfigManager().getMessage("daily_reset"));
+    }
+
+    public void resetWeeklyQuests() {
+        plugin.getQuestDatabase().resetAllQuestsOfType(QuestType.WEEKLY);
+        playerData.values().forEach(data -> {
+            data.updateWeeklyReset();
+            plugin.getQuestDatabase().savePlayerData(data);
+        });
+        Bukkit.broadcastMessage(plugin.getConfigManager().getMessage("weekly_reset"));
+    }
+
+    public void resetMonthlyQuests() {
+        plugin.getQuestDatabase().resetAllQuestsOfType(QuestType.MONTHLY);
+        playerData.values().forEach(data -> {
+            data.updateMonthlyReset();
+            plugin.getQuestDatabase().savePlayerData(data);
+        });
+        Bukkit.broadcastMessage(plugin.getConfigManager().getMessage("monthly_reset"));
+    }
+
+    // Dodaj metodę do manualnego resetu dla komendy admina
+    public void forceResetQuest(Player player, QuestType type) {
+        PlayerQuestData data = getPlayerData(player.getUniqueId());
+
+        // Usuń quest z bazy danych
+        plugin.getQuestDatabase().expireQuest(player.getUniqueId(), type);
+
+        // Aktualizuj dane w pamięci
+        switch (type) {
+            case DAILY:
+                data.updateDailyReset();
+                break;
+            case WEEKLY:
+                data.updateWeeklyReset();
+                break;
+            case MONTHLY:
+                data.updateMonthlyReset();
+                break;
+        }
+
+        // Zapisz do bazy
+        plugin.getQuestDatabase().savePlayerData(data);
+
+        player.sendMessage(plugin.getConfigManager().getMessage("prefix") +
+            ChatColor.GREEN + "Your " + type.name().toLowerCase() + " quest has been reset!");
     }
 
     // Utility methods

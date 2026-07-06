@@ -43,6 +43,9 @@ public class ItemPickupListener implements Listener {
         boolean hasMythicQuest = false;
         boolean hasQuestCraftingMaterialsQuest = false;
         boolean hasCraftingMaterialsQuest = false;
+        boolean hasFarmingCollectMaterialsQuest = false;
+        boolean hasFarmingCollectRareMaterialsQuest = false;
+        boolean hasFarmingCollectLegendaryMaterialsQuest = false;
 
         // Check daily quest
         Quest dailyQuest = playerData.getDailyQuest();
@@ -68,6 +71,15 @@ public class ItemPickupListener implements Listener {
                 hasItemQuests = true;
             } else if (objective == QuestObjective.DROP_CRAFTING_MATERIALS) {
                 hasCraftingMaterialsQuest = true;
+                hasItemQuests = true;
+            } else if (objective == QuestObjective.FARMING_COLLECT_MATERIALS) {
+                hasFarmingCollectMaterialsQuest = true;
+                hasItemQuests = true;
+            } else if (objective == QuestObjective.FARMING_COLLECT_RARE_MATERIALS) {
+                hasFarmingCollectRareMaterialsQuest = true;
+                hasItemQuests = true;
+            } else if (objective == QuestObjective.FARMING_COLLECT_LEGENDARY_MATERIALS) {
+                hasFarmingCollectLegendaryMaterialsQuest = true;
                 hasItemQuests = true;
             }
         }
@@ -97,6 +109,15 @@ public class ItemPickupListener implements Listener {
             } else if (objective == QuestObjective.DROP_CRAFTING_MATERIALS) {
                 hasCraftingMaterialsQuest = true;
                 hasItemQuests = true;
+            } else if (objective == QuestObjective.FARMING_COLLECT_MATERIALS) {
+                hasFarmingCollectMaterialsQuest = true;
+                hasItemQuests = true;
+            } else if (objective == QuestObjective.FARMING_COLLECT_RARE_MATERIALS) {
+                hasFarmingCollectRareMaterialsQuest = true;
+                hasItemQuests = true;
+            } else if (objective == QuestObjective.FARMING_COLLECT_LEGENDARY_MATERIALS) {
+                hasFarmingCollectLegendaryMaterialsQuest = true;
+                hasItemQuests = true;
             }
         }
 
@@ -124,6 +145,15 @@ public class ItemPickupListener implements Listener {
                 hasItemQuests = true;
             } else if (objective == QuestObjective.DROP_CRAFTING_MATERIALS) {
                 hasCraftingMaterialsQuest = true;
+                hasItemQuests = true;
+            } else if (objective == QuestObjective.FARMING_COLLECT_MATERIALS) {
+                hasFarmingCollectMaterialsQuest = true;
+                hasItemQuests = true;
+            } else if (objective == QuestObjective.FARMING_COLLECT_RARE_MATERIALS) {
+                hasFarmingCollectRareMaterialsQuest = true;
+                hasItemQuests = true;
+            } else if (objective == QuestObjective.FARMING_COLLECT_LEGENDARY_MATERIALS) {
+                hasFarmingCollectLegendaryMaterialsQuest = true;
                 hasItemQuests = true;
             }
         }
@@ -172,6 +202,22 @@ public class ItemPickupListener implements Listener {
 
         if (hasCraftingMaterialsQuest && isCraftingMaterial(item)) {
             plugin.getQuestManager().updateProgress(player, QuestObjective.DROP_CRAFTING_MATERIALS, item.getAmount(), null);
+        }
+
+        // Check if it's a farming material only if player has relevant quests
+        String farmingMaterialTier = getFarmingMaterialTier(item);
+        if (farmingMaterialTier != null) {
+            // Update general farming materials collection
+            if (hasFarmingCollectMaterialsQuest) {
+                plugin.getQuestManager().updateProgress(player, QuestObjective.FARMING_COLLECT_MATERIALS, item.getAmount(), null);
+            }
+
+            // Update tier-specific farming materials collection
+            if ("RARE".equals(farmingMaterialTier) && hasFarmingCollectRareMaterialsQuest) {
+                plugin.getQuestManager().updateProgress(player, QuestObjective.FARMING_COLLECT_RARE_MATERIALS, item.getAmount(), null);
+            } else if ("LEGENDARY".equals(farmingMaterialTier) && hasFarmingCollectLegendaryMaterialsQuest) {
+                plugin.getQuestManager().updateProgress(player, QuestObjective.FARMING_COLLECT_LEGENDARY_MATERIALS, item.getAmount(), null);
+            }
         }
     }
 
@@ -243,5 +289,51 @@ public class ItemPickupListener implements Listener {
         }
 
         return false;
+    }
+
+    /**
+     * Checks if an item is a farming material and returns its tier.
+     * Returns "BASIC", "RARE", or "LEGENDARY", or null if not a farming material.
+     * Excludes honey bottles from bees plugin.
+     */
+    private String getFarmingMaterialTier(ItemStack item) {
+        if (!item.hasItemMeta()) {
+            return null;
+        }
+
+        ItemMeta meta = item.getItemMeta();
+
+        if (!meta.hasLore()) {
+            return null;
+        }
+
+        List<String> lore = meta.getLore();
+
+        // Exclude honey bottles and other bees materials by checking for their unique lore
+        for (String line : lore) {
+            String cleanLine = ChatColor.stripColor(line).toLowerCase().trim();
+            // Honey bottles have this unique line in their lore
+            if (cleanLine.contains("applies a new quality to an item") ||
+                cleanLine.contains("hive multiplier") ||
+                cleanLine.contains("base honey production") ||
+                cleanLine.contains("larvae production")) {
+                return null;
+            }
+        }
+        for (String line : lore) {
+            // Remove color codes for checking
+            String cleanLine = ChatColor.stripColor(line).toLowerCase().trim();
+
+            // Check for farming material tiers
+            if (cleanLine.equals("basic crafting material")) {
+                return "BASIC";
+            } else if (cleanLine.equals("rare crafting material")) {
+                return "RARE";
+            } else if (cleanLine.equals("legendary crafting material")) {
+                return "LEGENDARY";
+            }
+        }
+
+        return null;
     }
 }

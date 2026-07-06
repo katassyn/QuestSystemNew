@@ -334,7 +334,17 @@ public class MythicMobKillListenerNew implements Listener {
                             plugin.getLogger().info("[QuestSystem] Match found! Updating progress for Q" + questNum + " INF");
                         }
                         plugin.getQuestManager().updateProgress(player, QuestObjective.FINISH_Q_INF, 1, questNum);
-                        plugin.getQuestManager().updateProgress(player, QuestObjective.FINISH_ALL_Q_INF, 1, null);
+
+                        // Mark this specific quest as completed and check if full set is done
+                        plugin.getQuestManager().getPlayerData(player.getUniqueId()).markQuestCompleted(questNum, "INF");
+                        if (plugin.getQuestManager().getPlayerData(player.getUniqueId()).isAllQCompleted("INF")) {
+                            // Player completed all Q1-Q10 INF, increment the set counter and reset
+                            plugin.getQuestManager().updateProgress(player, QuestObjective.FINISH_ALL_Q_INF, 1, null);
+                            plugin.getQuestManager().getPlayerData(player.getUniqueId()).resetQCompletion("INF");
+                            if (debug) {
+                                plugin.getLogger().info("[QuestSystem] Player completed full Q1-Q10 INF set!");
+                            }
+                        }
                         return;
                     }
                 }
@@ -362,7 +372,17 @@ public class MythicMobKillListenerNew implements Listener {
                             plugin.getLogger().info("[QuestSystem] Match found! Updating progress for Q" + questNum + " HELL");
                         }
                         plugin.getQuestManager().updateProgress(player, QuestObjective.FINISH_Q_HELL, 1, questNum);
-                        plugin.getQuestManager().updateProgress(player, QuestObjective.FINISH_ALL_Q_HELL, 1, null);
+
+                        // Mark this specific quest as completed and check if full set is done
+                        plugin.getQuestManager().getPlayerData(player.getUniqueId()).markQuestCompleted(questNum, "HELL");
+                        if (plugin.getQuestManager().getPlayerData(player.getUniqueId()).isAllQCompleted("HELL")) {
+                            // Player completed all Q1-Q10 HELL, increment the set counter and reset
+                            plugin.getQuestManager().updateProgress(player, QuestObjective.FINISH_ALL_Q_HELL, 1, null);
+                            plugin.getQuestManager().getPlayerData(player.getUniqueId()).resetQCompletion("HELL");
+                            if (debug) {
+                                plugin.getLogger().info("[QuestSystem] Player completed full Q1-Q10 HELL set!");
+                            }
+                        }
                         return;
                     }
                 }
@@ -390,7 +410,17 @@ public class MythicMobKillListenerNew implements Listener {
                             plugin.getLogger().info("[QuestSystem] Match found! Updating progress for Q" + questNum + " BLOOD");
                         }
                         plugin.getQuestManager().updateProgress(player, QuestObjective.FINISH_Q_BLOOD, 1, questNum);
-                        plugin.getQuestManager().updateProgress(player, QuestObjective.FINISH_ALL_Q_BLOOD, 1, null);
+
+                        // Mark this specific quest as completed and check if full set is done
+                        plugin.getQuestManager().getPlayerData(player.getUniqueId()).markQuestCompleted(questNum, "BLOOD");
+                        if (plugin.getQuestManager().getPlayerData(player.getUniqueId()).isAllQCompleted("BLOOD")) {
+                            // Player completed all Q1-Q10 BLOOD, increment the set counter and reset
+                            plugin.getQuestManager().updateProgress(player, QuestObjective.FINISH_ALL_Q_BLOOD, 1, null);
+                            plugin.getQuestManager().getPlayerData(player.getUniqueId()).resetQCompletion("BLOOD");
+                            if (debug) {
+                                plugin.getLogger().info("[QuestSystem] Player completed full Q1-Q10 BLOOD set!");
+                            }
+                        }
                         return;
                     }
                 }

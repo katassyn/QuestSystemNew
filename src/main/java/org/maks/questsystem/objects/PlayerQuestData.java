@@ -2,6 +2,7 @@ package org.maks.questsystem.objects;
 
 import org.maks.questsystem.objects.Quest.QuestType;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,8 +21,18 @@ public class PlayerQuestData {
     private LocalDateTime lastDailyReset;
     private LocalDateTime lastWeeklyReset;
     private LocalDateTime lastMonthlyReset;
+
+    // Track when player last completed and claimed a quest
+    private LocalDateTime lastDailyCompletion;
+    private LocalDateTime lastWeeklyCompletion;
+    private LocalDateTime lastMonthlyCompletion;
     private long onlineTime; // in minutes
     private LocalDateTime lastActiveTime;
+
+    // Q1-Q10 completion tracking for each difficulty
+    private final Map<String, Boolean> qInfCompleted; // Q1-Q10 completion status for INF
+    private final Map<String, Boolean> qHellCompleted; // Q1-Q10 completion status for HELL
+    private final Map<String, Boolean> qBloodCompleted; // Q1-Q10 completion status for BLOOD
 
     public PlayerQuestData(UUID playerUUID) {
         this.playerUUID = playerUUID;
@@ -31,6 +42,18 @@ public class PlayerQuestData {
         this.completedWeeklyQuests = 0;
         this.onlineTime = 0;
         this.lastActiveTime = LocalDateTime.now();
+
+        // Initialize Q1-Q10 completion tracking
+        this.qInfCompleted = new HashMap<>();
+        this.qHellCompleted = new HashMap<>();
+        this.qBloodCompleted = new HashMap<>();
+
+        // Initialize Q1-Q10 as not completed
+        for (int i = 1; i <= 10; i++) {
+            qInfCompleted.put(String.valueOf(i), false);
+            qHellCompleted.put(String.valueOf(i), false);
+            qBloodCompleted.put(String.valueOf(i), false);
+        }
 
         // Initialize reroll counts
         for (QuestType type : QuestType.values()) {
@@ -57,6 +80,21 @@ public class PlayerQuestData {
         }
     }
 
+    // Add method to explicitly clear quest by type
+    public void clearQuest(QuestType type) {
+        switch (type) {
+            case DAILY:
+                this.dailyQuest = null;
+                break;
+            case WEEKLY:
+                this.weeklyQuest = null;
+                break;
+            case MONTHLY:
+                this.monthlyQuest = null;
+                break;
+        }
+    }
+
     public Quest getQuest(QuestType type) {
         switch (type) {
             case DAILY:
@@ -72,7 +110,53 @@ public class PlayerQuestData {
 
     public boolean hasActiveQuest(QuestType type) {
         Quest quest = getQuest(type);
-        return quest != null && !quest.isRewardClaimed();
+        // A player has an active quest if:
+        // 1. They have a quest AND
+        // 2. The quest exists (not null)
+        // Even if the reward is claimed, it still counts as having a quest for this period
+        return quest != null;
+    }
+
+    public boolean canGetNewQuest(QuestType type, int resetHour, DayOfWeek weeklyResetDay) {
+        // Check if player already has a quest (completed or not) for this period
+        Quest existingQuest = getQuest(type);
+
+        // If player has any quest (even completed), they can't get a new one until reset
+        if (existingQuest != null) {
+            return false;
+        }
+
+        // If no quest exists, player can get a new one
+        return true;
+    }
+
+    public LocalDateTime getLastCompletion(QuestType type) {
+        switch (type) {
+            case DAILY:
+                return lastDailyCompletion;
+            case WEEKLY:
+                return lastWeeklyCompletion;
+            case MONTHLY:
+                return lastMonthlyCompletion;
+            default:
+                return null;
+        }
+    }
+
+    // Mark quest as completed and claimed
+    public void markQuestCompleted(QuestType type) {
+        LocalDateTime now = LocalDateTime.now();
+        switch (type) {
+            case DAILY:
+                lastDailyCompletion = now;
+                break;
+            case WEEKLY:
+                lastWeeklyCompletion = now;
+                break;
+            case MONTHLY:
+                lastMonthlyCompletion = now;
+                break;
+        }
     }
 
     // Reroll management
@@ -82,10 +166,10 @@ public class PlayerQuestData {
         }
 
         if (isPremium) {
-            return rerollsUsed.get(type) < 1; // One reroll per type for premium
+            return rerollsUsed.get(type) < 2; // Two rerolls per type for premium
         }
 
-        return false; // No rerolls for regular players
+        return rerollsUsed.get(type) < 1; // One free reroll for regular players
     }
 
     public void useReroll(QuestType type) {
@@ -134,9 +218,75 @@ public class PlayerQuestData {
     public void resetOnlineTime() {
         onlineTime = 0;
     }
-    
+
     public void setOnlineTime(long onlineTime) {
         this.onlineTime = onlineTime;
+    }
+
+    // Q1-Q10 completion tracking methods
+    public void markQuestCompleted(String questNum, String difficulty) {
+        Map<String, Boolean> targetMap = null;
+        switch (difficulty.toUpperCase()) {
+            case "INF":
+                targetMap = qInfCompleted;
+                break;
+            case "HELL":
+                targetMap = qHellCompleted;
+                break;
+            case "BLOOD":
+                targetMap = qBloodCompleted;
+                break;
+        }
+
+        if (targetMap != null && questNum != null) {
+            targetMap.put(questNum, true);
+        }
+    }
+
+    public boolean isAllQCompleted(String difficulty) {
+        Map<String, Boolean> targetMap = null;
+        switch (difficulty.toUpperCase()) {
+            case "INF":
+                targetMap = qInfCompleted;
+                break;
+            case "HELL":
+                targetMap = qHellCompleted;
+                break;
+            case "BLOOD":
+                targetMap = qBloodCompleted;
+                break;
+        }
+
+        if (targetMap != null) {
+            for (int i = 1; i <= 10; i++) {
+                if (!targetMap.getOrDefault(String.valueOf(i), false)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public void resetQCompletion(String difficulty) {
+        Map<String, Boolean> targetMap = null;
+        switch (difficulty.toUpperCase()) {
+            case "INF":
+                targetMap = qInfCompleted;
+                break;
+            case "HELL":
+                targetMap = qHellCompleted;
+                break;
+            case "BLOOD":
+                targetMap = qBloodCompleted;
+                break;
+        }
+
+        if (targetMap != null) {
+            for (int i = 1; i <= 10; i++) {
+                targetMap.put(String.valueOf(i), false);
+            }
+        }
     }
 
     // Reset tracking
@@ -162,6 +312,10 @@ public class PlayerQuestData {
         resetOnlineTime();
         resetCompletedDailyQuests();
         resetCompletedWeeklyQuests();
+        // Reset Q1-Q10 completion tracking for all difficulties
+        resetQCompletion("INF");
+        resetQCompletion("HELL");
+        resetQCompletion("BLOOD");
         // Always remove monthly quest during reset, regardless of progress or claim status
         // This ensures fresh quests are available for all players at reset time
         monthlyQuest = null;
@@ -180,4 +334,20 @@ public class PlayerQuestData {
     public LocalDateTime getLastDailyReset() { return lastDailyReset; }
     public LocalDateTime getLastWeeklyReset() { return lastWeeklyReset; }
     public LocalDateTime getLastMonthlyReset() { return lastMonthlyReset; }
+    public LocalDateTime getLastDailyCompletion() { return lastDailyCompletion; }
+    public LocalDateTime getLastWeeklyCompletion() { return lastWeeklyCompletion; }
+    public LocalDateTime getLastMonthlyCompletion() { return lastMonthlyCompletion; }
+
+    // Setters for database loading
+    public void setLastDailyReset(LocalDateTime lastDailyReset) { this.lastDailyReset = lastDailyReset; }
+    public void setLastWeeklyReset(LocalDateTime lastWeeklyReset) { this.lastWeeklyReset = lastWeeklyReset; }
+    public void setLastMonthlyReset(LocalDateTime lastMonthlyReset) { this.lastMonthlyReset = lastMonthlyReset; }
+    public void setLastDailyCompletion(LocalDateTime lastDailyCompletion) { this.lastDailyCompletion = lastDailyCompletion; }
+    public void setLastWeeklyCompletion(LocalDateTime lastWeeklyCompletion) { this.lastWeeklyCompletion = lastWeeklyCompletion; }
+    public void setLastMonthlyCompletion(LocalDateTime lastMonthlyCompletion) { this.lastMonthlyCompletion = lastMonthlyCompletion; }
+
+    // Q completion tracking getters
+    public Map<String, Boolean> getQInfCompleted() { return qInfCompleted; }
+    public Map<String, Boolean> getQHellCompleted() { return qHellCompleted; }
+    public Map<String, Boolean> getQBloodCompleted() { return qBloodCompleted; }
 }

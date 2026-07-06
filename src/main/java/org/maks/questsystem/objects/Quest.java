@@ -18,7 +18,7 @@ public class Quest {
         KILL_MINI_BOSS,
         KILL_BOSS,
         KILL_PLAYERS,
-        
+
         // Drop quests
         DROP_MAGIC,
         DROP_EXTRAORDINARY,
@@ -27,7 +27,7 @@ public class Quest {
         DROP_MYTHIC,
         DROP_QUEST_CRAFTING_MATERIALS,
         DROP_CRAFTING_MATERIALS,
-        
+
         // Dungeon quests
         FINISH_Q_INF,
         FINISH_Q_HELL,
@@ -35,7 +35,51 @@ public class Quest {
         FINISH_ALL_Q_INF,
         FINISH_ALL_Q_HELL,
         FINISH_ALL_Q_BLOOD,
-        
+
+        // Blood Chest quests
+        BLOOD_CHEST_COMPLETE,
+        BLOOD_CHEST_OPEN_CHESTS,
+        BLOOD_CHEST_SPEED_RUN,
+
+        // Bees quests
+        BEES_COLLECT_HONEY,
+        BEES_CREATE_BEES,
+        BEES_COLLECT_LARVAE,
+        BEES_COLLECT_TIER_HONEY,
+        BEES_CREATE_TIER_BEES,
+
+        // Group Dungeons quests
+        DUNGEONS_COMPLETE_ANY,
+        DUNGEONS_COMPLETE_T1,
+        DUNGEONS_COMPLETE_T2,
+        DUNGEONS_COMPLETE_T3,
+        DUNGEONS_COMPLETE_T4,
+        DUNGEONS_COMPLETE_T5,
+        DUNGEONS_DEFEAT_BOSSES,
+
+        // Fishing quests
+        FISHING_CATCH_FISH,
+        FISHING_CATCH_QUALITY,
+        FISHING_EARN_MONEY,
+        FISHING_FIND_MAPS,
+        FISHING_COMPLETE_BOUNTIES,
+
+        // Farming quests
+        FARMING_HARVEST,
+        FARMING_COLLECT_MATERIALS,
+        FARMING_SELL_FRUITS,
+        FARMING_UPGRADE,
+        FARMING_COLLECT_RARE_MATERIALS,
+        FARMING_COLLECT_LEGENDARY_MATERIALS,
+
+        // Mining quests
+        MINING_MINE_ORES,
+        MINING_MINE_SPECIFIC_ORE,
+        MINING_COMPLETE_SPHERES,
+        MINING_COMPLETE_SPHERE_TYPE,
+        MINING_USE_PICKAXE_LEVEL,
+        MINING_MINE_TIER_ORES,
+
         // Other quests
         LEVEL_UP,
         CRAFT_ITEMS,

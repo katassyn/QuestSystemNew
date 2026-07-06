@@ -6,6 +6,7 @@ import org.maks.questsystem.objects.Quest;
 import org.maks.questsystem.objects.Quest.QuestType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -74,6 +75,14 @@ public class QuestAdminCommand implements CommandExecutor, TabCompleter {
                 }
                 break;
 
+            case "forcereset":
+                if (args.length >= 2) {
+                    handleForceReset(sender, args[1]);
+                } else {
+                    sender.sendMessage(ChatColor.RED + "Usage: /questadmin forcereset <daily|weekly|monthly>");
+                }
+                break;
+
             default:
                 showHelp(sender);
                 break;
@@ -89,6 +98,7 @@ public class QuestAdminCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(ChatColor.YELLOW + "/questadmin complete <player> <type>" + ChatColor.GRAY + " - Complete player's quest");
         sender.sendMessage(ChatColor.YELLOW + "/questadmin info <player>" + ChatColor.GRAY + " - Show player's quest info");
         sender.sendMessage(ChatColor.YELLOW + "/questadmin resetall <type>" + ChatColor.GRAY + " - Reset all quests of type");
+        sender.sendMessage(ChatColor.YELLOW + "/questadmin forcereset <type>" + ChatColor.GRAY + " - Force reset all quests of type");
     }
 
     private void handleReload(CommandSender sender) {
@@ -98,29 +108,68 @@ public class QuestAdminCommand implements CommandExecutor, TabCompleter {
 
     private void handleReset(CommandSender sender, String playerName, String questType) {
         Player target = Bukkit.getPlayer(playerName);
+
+        // Jeśli gracz jest offline, pobierz dane bezpośrednio z bazy
+        java.util.UUID targetUUID = null;
         if (target == null) {
-            sender.sendMessage(ChatColor.RED + "Player not found!");
-            return;
+            // Spróbuj znaleźć gracza offline
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerName);
+            if (offlinePlayer != null && offlinePlayer.hasPlayedBefore()) {
+                targetUUID = offlinePlayer.getUniqueId();
+                sender.sendMessage(ChatColor.YELLOW + "Player is offline, resetting quest in database...");
+            } else {
+                sender.sendMessage(ChatColor.RED + "Player not found!");
+                return;
+            }
+        } else {
+            targetUUID = target.getUniqueId();
         }
 
-        PlayerQuestData data = plugin.getQuestManager().getPlayerData(target.getUniqueId());
-
         if (questType.equalsIgnoreCase("all")) {
-            data.updateDailyReset();
-            data.updateWeeklyReset();
-            data.updateMonthlyReset();
+            // Reset wszystkich typów questów
+            plugin.getQuestDatabase().expireQuest(targetUUID, QuestType.DAILY);
+            plugin.getQuestDatabase().expireQuest(targetUUID, QuestType.WEEKLY);
+            plugin.getQuestDatabase().expireQuest(targetUUID, QuestType.MONTHLY);
+
+            // Jeśli gracz jest online, zaktualizuj dane w pamięci
+            if (target != null) {
+                PlayerQuestData data = plugin.getQuestManager().getPlayerData(targetUUID);
+                data.updateDailyReset();
+                data.updateWeeklyReset();
+                data.updateMonthlyReset();
+                plugin.getQuestDatabase().savePlayerData(data);
+                target.sendMessage(ChatColor.GREEN + "All your quests have been reset!");
+            }
+
             sender.sendMessage(ChatColor.GREEN + "Reset all quests for " + playerName);
         } else {
             try {
                 QuestType type = QuestType.valueOf(questType.toUpperCase());
-                Quest quest = data.getQuest(type);
-                if (quest != null) {
-                    quest.reset();
-                    plugin.getQuestDatabase().saveQuest(target.getUniqueId(), quest);
-                    sender.sendMessage(ChatColor.GREEN + "Reset " + type.name() + " quest for " + playerName);
-                } else {
-                    sender.sendMessage(ChatColor.RED + "Player has no active " + type.name() + " quest!");
+
+                // Usuń quest z bazy danych
+                plugin.getQuestDatabase().expireQuest(targetUUID, type);
+
+                // Jeśli gracz jest online, zaktualizuj dane w pamięci
+                if (target != null) {
+                    PlayerQuestData data = plugin.getQuestManager().getPlayerData(targetUUID);
+
+                    switch (type) {
+                        case DAILY:
+                            data.updateDailyReset();
+                            break;
+                        case WEEKLY:
+                            data.updateWeeklyReset();
+                            break;
+                        case MONTHLY:
+                            data.updateMonthlyReset();
+                            break;
+                    }
+
+                    plugin.getQuestDatabase().savePlayerData(data);
+                    target.sendMessage(ChatColor.GREEN + "Your " + type.name().toLowerCase() + " quest has been reset!");
                 }
+
+                sender.sendMessage(ChatColor.GREEN + "Reset " + type.name() + " quest for " + playerName);
             } catch (IllegalArgumentException e) {
                 sender.sendMessage(ChatColor.RED + "Invalid quest type! Use: daily, weekly, monthly, or all");
             }
@@ -240,6 +289,36 @@ public class QuestAdminCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    // Dodaj nową komendę do wymuszenia globalnego resetu
+    private void handleForceReset(CommandSender sender, String questType) {
+        try {
+            QuestType type = QuestType.valueOf(questType.toUpperCase());
+
+            // Resetuj w bazie danych dla wszystkich graczy
+            plugin.getQuestDatabase().resetAllQuestsOfType(type);
+
+            // Resetuj dla graczy online
+            switch (type) {
+                case DAILY:
+                    plugin.getQuestManager().resetDailyQuests();
+                    break;
+                case WEEKLY:
+                    plugin.getQuestManager().resetWeeklyQuests();
+                    break;
+                case MONTHLY:
+                    plugin.getQuestManager().resetMonthlyQuests();
+                    break;
+            }
+
+            sender.sendMessage(ChatColor.GREEN + "Force reset all " + type.name() + " quests!");
+            Bukkit.broadcastMessage(plugin.getConfigManager().getMessage("prefix") +
+                ChatColor.YELLOW + type.name() + " quests have been reset by an administrator!");
+
+        } catch (IllegalArgumentException e) {
+            sender.sendMessage(ChatColor.RED + "Invalid quest type! Use: daily, weekly, or monthly");
+        }
+    }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (!sender.hasPermission("questsystem.admin")) {
@@ -247,7 +326,7 @@ public class QuestAdminCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length == 1) {
-            return Arrays.asList("reload", "reset", "complete", "info", "resetall")
+            return Arrays.asList("reload", "reset", "complete", "info", "resetall", "forcereset")
                 .stream()
                 .filter(s -> s.toLowerCase().startsWith(args[0].toLowerCase()))
                 .collect(Collectors.toList());
@@ -264,6 +343,7 @@ public class QuestAdminCommand implements CommandExecutor, TabCompleter {
                         .collect(Collectors.toList());
 
                 case "resetall":
+                case "forcereset":
                     return Arrays.asList("daily", "weekly", "monthly")
                         .stream()
                         .filter(s -> s.toLowerCase().startsWith(args[1].toLowerCase()))
